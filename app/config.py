@@ -1,0 +1,18 @@
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+EMBEDDING_MODEL = os.getenv('EMBEDDING_MODEL')
+NEO4J_URI = os.getenv('NEO4J_URI')
+NEO4J_USERNAME = os.getenv('NEO4J_USERNAME')
+NEO4J_PASSWORD = os.getenv('NEO4J_PASSWORD')
+AURA_INSTANCEID = os.getenv('AURA_INSTANCEID')
+AURA_INSTANCENAME = os.getenv('AURA_INSTANCENAME')
+
+NEO4J_DB = os.getenv('NEO4J_DB')
+NEO4J_INDEX = os.getenv('NEO4J_INDEX')
+NEO4J_NODE_LABEL = os.getenv('NEO4J_NODE_LABEL')
+NEO4J_TXTNODE_PROP = os.getenv('NEO4J_TXTNODE_PROP')
+NEO4J_EMBNODE_PROP = os.getenv('NEO4J_EMBNODE_PROP')
+

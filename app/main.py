@@ -1,6 +1,6 @@
 import os
 from typing import Annotated
-from fastapi import FastAPI, Path,
+from fastapi import FastAPI, Path
 from starlette.exceptions import HTTPException
 from vdriver import VDriver
 

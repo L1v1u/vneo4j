@@ -1,7 +1,7 @@
 import time
 import logging
 from langchain_community.vectorstores import Neo4jVector
-from langchain_experimental.text_splitter import SemanticChunker
+# from langchain_experimental.text_splitter import SemanticChunker
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings
 from config import (EMBEDDING_MODEL , NEO4J_URI, NEO4J_USERNAME, NEO4J_PASSWORD,
                     NEO4J_DB, NEO4J_INDEX,NEO4J_NODE_LABEL, NEO4J_TXTNODE_PROP,
@@ -23,11 +23,11 @@ class VDriver(object):
             )
         except EnvironmentError:
             self.__embeddings = False
-    def __text_splitter(self):
-        """ This method use SemanticChunker to split the text into sentences"""
-        if self.__embeddings:
-            return SemanticChunker(self.__embeddings)
-        return False
+    # def __text_splitter(self):
+    #     """ This method use SemanticChunker to split the text into sentences"""
+    #     if self.__embeddings:
+    #         return SemanticChunker(self.__embeddings)
+    #     return False
 
     def __create_documents(self, content, title):
         # """ This method creates a documents' object from a text """

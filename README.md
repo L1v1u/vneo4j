@@ -6,17 +6,6 @@ the app vectorize a set of texts and create indexed vector/graph DB from it.
 
 ## Installation
 
-create an instance of db on [https://console.neo4j.io](https://console.neo4j.io/)
-
-fill the .env file
-```code
-NEO4J_URI=
-NEO4J_USERNAME=
-NEO4J_PASSWORD=
-AURA_INSTANCEID=
-AURA_INSTANCENAME=
-```
-
 then first time
 
 ```code

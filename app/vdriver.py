@@ -1,3 +1,5 @@
+import time
+import logging
 from langchain_community.vectorstores import Neo4jVector
 from langchain_experimental.text_splitter import SemanticChunker
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings
@@ -5,7 +7,9 @@ from config import (EMBEDDING_MODEL , NEO4J_URI, NEO4J_USERNAME, NEO4J_PASSWORD,
                     NEO4J_DB, NEO4J_INDEX,NEO4J_NODE_LABEL, NEO4J_TXTNODE_PROP,
                     NEO4J_EMBNODE_PROP)
 from neo4j.exceptions import ConfigurationError
+from langchain.docstore.document import Document
 
+logging.basicConfig(level=logging.INFO)
 class VDriver(object):
     """ This is a class that allows you to vectorize a text using Neo4j, langcain,
     SemanticChunker, and HuggingFaceBgeEmbeddings
@@ -25,12 +29,16 @@ class VDriver(object):
             return SemanticChunker(self.__embeddings)
         return False
 
-    def __create_documents(self, content):
-        """ This method creates a documents' object from a text """
-        text_splitter = self.__text_splitter()
-        if text_splitter is not False:
-            return text_splitter.create_documents([content])
-        return False
+    def __create_documents(self, content, title):
+        # """ This method creates a documents' object from a text """
+        sentences = content.split('.')
+        docs = []
+        for sentence in sentences:
+            sentence = sentence.strip()
+            if sentence:
+                docs.append(Document(page_content=sentence, metadata={'title': title}))
+
+        return docs
 
     def __get_db_from_existing_index(self):
         """ This method loads a Neo4j index from the existing one in the db"""
@@ -57,26 +65,28 @@ class VDriver(object):
             return db.query("MATCH(n) DETACH DELETE n")
         return False
 
-    def vectorize(self, content):
+    def vectorize(self, content, title):
         """ This method clear first the existing index and then vectorize the documents provided by the content"""
-        self.clear_db()
-        docs = self.__create_documents(content)
-        if docs:
-            try:
-                db = Neo4jVector.from_documents(
-                    docs, self.__embeddings, url=NEO4J_URI,
+        """ This method clear first the existing index and then vectorize the documents provided by the content"""
+        start_time = time.time()
+        docs = self.__create_documents(content , title)
+
+        chunks = [docs[x:x + 50] for x in range(0, len(docs), 50)]
+
+        for docs_chunked in chunks:
+            db = Neo4jVector.from_documents(
+                    docs_chunked, self.__embeddings, url=NEO4J_URI,
                     username=NEO4J_USERNAME,
                     password=NEO4J_PASSWORD,
                     database=NEO4J_DB,
                     index_name=NEO4J_INDEX,
-                    node_label=NEO4J_NODE_LABEL,
+                    node_label=title,
                     text_node_property=NEO4J_TXTNODE_PROP,
                     embedding_node_property=NEO4J_EMBNODE_PROP,
-                    create_id_index=True,
-                )
-                return True
-            except  (ConfigurationError, ValueError):
-                return False
+                    create_id_index=True)
+            time.sleep(1)
+        logging.info("--- %s seconds from_documents---" % (time.time() - start_time))
+
         return False
     def query(self, query, size=5):
         """ This method queries the Neo4j for documents"""

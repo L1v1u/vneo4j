@@ -3,6 +3,7 @@ from typing import Annotated
 from fastapi import FastAPI, Path
 from starlette.exceptions import HTTPException
 from vdriver import VDriver
+from tqdm import tqdm
 
 app = FastAPI()
 @app.get("/clear_db")
@@ -15,18 +16,16 @@ def clear_content():
 @app.get("/load_content_to_db")
 def load_content():
     v = VDriver()
-    content = ""
     try:
         for file in os.listdir('wiki'):
             if file.endswith(".txt"):
                 with open(f'wiki/{file}') as f:
-                    content += f.read()
+                    v.vectorize(content=f.read(), title=file[:-4])
+
     except FileNotFoundError:
         raise HTTPException(status_code=400, detail="folder wiki not found to process")
-    results = v.vectorize(content=content)
-    if results is False:
-        raise HTTPException(status_code=400, detail="Usually bad credentials for neo4j database")
-    return {"Content Loaded": results }
+
+    return {"Content Loaded": True }
 
 @app.get("/search/{query}/{k}")
 def search(query: str, k:Annotated[int, Path(title="top K results", ge=1)]):
